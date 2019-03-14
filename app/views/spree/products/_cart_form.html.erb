@@ -1,0 +1,125 @@
+<!-- replace "erb[loud]:contains('form_for :order, :url => populate_orders_path do |f|')" -->
+<%= form_for :order, :url => populate_orders_path, :remote => true, html: {:id => 'add_to_cart_form'} do |f| %>
+
+    <div class="product_cart_form" data-hook="product_cart_form" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+
+      <% if @product.variants_and_option_values(current_currency).any? %>
+
+          <% if @product.has_variants? %>
+              <div class="product-variants variants">
+
+
+                <% index = 0 %>
+
+                <% @product.grouped_option_values.each do |type, values| %>
+
+                    <div class="<%= dom_id(type) %> variant-options index-<%= index %> attribute clear">
+
+                      <ul class="variant-option-values inline clear">
+
+                        <% values.sort_by(&:position).each do |value| %>
+                            <% classes = ["option-value", "#{type.name}"] %>
+
+                            <% unless (variants = @product.variants_for_option_value(value)).empty? %>
+                                <% classes << ( variants.any? { |v| v.in_stock? } ? "in-stock" : "out-of-stock" ) if index == 0 %>
+                                <% if value.alternate_presentation.blank? %>
+                                    <% style = "" %>
+                                    <% title = value.presentation %>
+                                <%else%>
+                                    <% style = "background-color:#{value.alternate_presentation};" %>
+                                    <% title = "" %>
+                                <% end %>
+                                <li> <%= link_to content_tag(:span, title), "#", :title => value.presentation, :class => classes.join(" "), :data => { value_id: value.id, type_id: type.id, :value => value.name }, :style => style %></li>
+                            <% end %>
+
+                        <% end %>
+
+                        <% if index == 0 %>
+
+                        <% end %>
+
+                      </ul>
+
+                    </div>
+
+                    <% index += 1 %>
+
+                <% end %>
+
+                <div class="product-quantity clear">
+                  <label><p><%= t('checkout.quantity') %></p> <%= number_field_tag :quantity, 1, :class => '', :min => 1, :max => 10%></label>
+                </div>
+
+
+                <div class="clear"></div>
+
+                <%= hidden_field_tag "variant_id", "", :class => "variant_id hidden" %>
+
+                <script type="text/javascript">
+                    var variant_options = new VariantOptions({
+                        options: <%== @product.variant_options_hash.to_json -%>
+
+                    }, $("#add_to_cart_form").first());
+                </script>
+
+              </div>
+          <% end%>
+      <% else %>
+          <div class="product-quantity clear">
+            <label><p><%= t('checkout.quantity') %></p> <%= number_field_tag :quantity, 1, :class => '', :min => 1, :max => 10%></label>
+          </div>
+          <%= hidden_field_tag "variant_id", @product.master.id, :class => "variant_id hidden" %>
+      <% end %>
+
+      <% if @product.price_in(current_currency) and !@product.price.nil? %>
+          <div data-hook="product_price" class="<% if !@product.has_variants? %> <% else %> <% end %>">
+
+            <% if @product.master.can_supply? %>
+                <link itemprop="availability" href="http://schema.org/InStock" />
+            <% elsif @product.variants.empty? %>
+                <br />
+                <span class="out-of-stock">              <%= Spree.t(:out_of_stock, href: page_path("contact")).html_safe %></span>
+            <% end %>
+          </div>
+
+          <div style = "display: none" class="status error pick_a_size"><%= Spree.t(:pick_a_size).html_safe %></div>
+
+
+          <div style = "display: none" class="success wishlist_status status_msg"><%=  %></div>
+
+
+          <div class="status hidden status_msg"></div>
+
+          <div class="clear buttons">
+              <div class="add-to-cart" data-hook="add-to-cart-button">
+                <%= button_tag :class => 'button large add-to-cart-button disabled',  :type => :submit, data: {disable_with: "#{t('products.adding')}".html_safe } do %>
+                    <span> <%= t('products.add_bag') %></span>
+                <% end %>
+              </div>
+          </div>
+
+      <% else %>
+          <div class="product-price">
+            <br>
+            <div><span class="price selling" itemprop="price"><%= Spree.t('product_not_available_in_this_currency') %></span></div>
+
+          </div>
+      <% end %>
+
+    </div>
+<% end %>
+
+<% if spree_current_user %>
+    <div id="wishlist-form" class="add-to-list">
+      <%= form_for Spree::WishedProduct.new, remote:true do |f| %>
+          <%= f.hidden_field :variant_id, value: @product.master.id %>
+          <%= f.hidden_field :quantity %>
+          <button type="submit" class="button">
+            <i class="icon-mc-heart"></i>
+          </button>
+      <% end %>
+    </div>
+<% end %>
+
+
+

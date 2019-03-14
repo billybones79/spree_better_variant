@@ -1,0 +1,81 @@
+input[type=number].qty_input {
+  width:50px;
+  height:52px;
+  padding:10px;
+  float:left;
+}
+.tshirt-color.selected,
+.color.selected {
+  border:solid 1px white;
+  outline:solid 1px black;
+}
+
+.product-details .price.unselected { color: #bbb; }
+
+.variant-option-type { margin-bottom: 0; }
+
+
+.product-variants ul.variant-option-values {
+  list-style-type: none;
+  display: flex;
+}
+
+
+.option_type_1 {
+ li {
+
+   a {
+     text-align: center;
+     width:30px;
+     height:30px;
+   }
+ }
+}
+
+
+
+.variant-option-values li.clear {
+  border: 0;
+  float: none;
+  clear: both;
+}
+
+div.variant-options {
+  li {
+    a{
+      margin:3px;
+      display: block;
+    }
+  }
+}
+.option-value.in-stock {
+  border: 1px solid #404040;
+
+}
+.option-value.selected,
+.option-value.in-stock:hover {
+  background-color: #404040;
+  color: #fff;
+}
+
+.option-value.out-of-stock {
+  display: block;
+  color: #aaa;
+  cursor: default;
+}
+
+.option-value.disabled,
+.option-value.disabled:hover {
+  background-color: #fff;
+  color: #ddd;
+  border: 1px solid #ddd;
+  cursor: default;
+
+}
+.option-value.disabled img {
+  filter:alpha(opacity=50);
+  -moz-opacity:0.5;
+  -khtml-opacity: 0.5;
+  opacity: 0.5;
+}
+
